@@ -33,7 +33,13 @@ function createBarChartRace(data, top_n, tickDuration, start, end) {
         const time = new Date(rowData);
         if (isNaN(time) || time < start_date || time > end_date) {
             // Invalid time, return null or handle the error accordingly
-            return null;
+            // calculate the distance between start_date and time
+            const distanceInMillis = Math.abs(time - start_date);
+    
+            // convert distance to days
+            const distanceInDays = Math.floor(distanceInMillis / (24 * 60 * 60 * 1000));
+            console.log(distanceInDays);
+            return [null, distanceInDays]
         }
       
         let new_data = column_names.map((name) => {
@@ -284,8 +290,9 @@ function createBarChartRace(data, top_n, tickDuration, start, end) {
 
     let interval = d3.interval((e) => {
         const rowData = getRowData(data, column_names, i, start_date, end_date);
-        if (rowData == null) {
+        if (rowData[0] == null) {
             // Handle invalid time case
+            i += rowData[1];
             console.log("Invalid time");
         }else{
             [time, row_data] = rowData;

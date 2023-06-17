@@ -4,7 +4,7 @@ import pandas as pd
 app = Dash(__name__)
 
 # time range to be passed
-value1 = 737515
+value1 = 737615
 value2 = 738505
 
 value1 = pd.Timestamp.fromordinal(value1).to_period('M').to_timestamp().strftime('%Y-%m-%d')
