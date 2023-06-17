@@ -3,6 +3,7 @@ import pandas as pd
 
 app = Dash(__name__)
 
+# time range to be passed
 value1 = 737515
 value2 = 738505
 
