@@ -62,7 +62,7 @@ for field in field_all_traces:
                                          line_shape='spline')
 
 river_fig = go.Figure()
-river_fig.update_layout(plot_bgcolor='white')
+river_fig.update_layout(plot_bgcolor='#FBFBFB', paper_bgcolor='#FBFBFB', margin=dict(l=0, r=0, t=0, b=5))
 # river_fig.update_xaxes(gridcolor='#F86F03')
 river_fig.update_yaxes(gridcolor='#888')
 for field in field_trace_dict.keys():
@@ -232,21 +232,27 @@ src_doc = generate_race_fig(None)
 def generate_bar_chart(top_n):
     df = pd.read_csv('../demo_dataset.csv')
     df['Year'] = df['Date'].str[0:4].astype('int')
+    # sort based on Venue alphabetically
+    # df = df.sort_values('Venue')
     gb = df.groupby(['Venue', 'Year']).sum(numeric_only=True)
     gb = gb.groupby(level=0).filter(lambda x: len(x) > 2 )
     first_n = gb.reset_index().groupby('Venue').sum(numeric_only=True).sort_values('Paper Citation Count', ascending=False).reset_index()['Venue'][0:top_n].tolist()
     df_clean = df[df['Venue'].isin(first_n)].sort_values('Paper Citation Count').reset_index().drop(['index'], axis=1)
     bar_fig = px.bar(df_clean, x="Year", y="Paper Citation Count", 
                  color="Venue", barmode="group", hover_name = "Title")
+    height = 1000
     bar_fig.update_layout(
         hoverlabel=dict(
             bgcolor="white",
             font_size=16,
             font_family="Rockwell"
-        )
-    )
+        ),
+        legend=dict(
+            x = -0.1,
+            y = -1.2
+    ))
     return bar_fig
-bar_fig = generate_bar_chart(3)
+bar_fig = generate_bar_chart(5)
 ##############################################################################################################
 # show the figures using dash
 external_stylesheets = ['assets/css/style.css']
@@ -284,7 +290,7 @@ app.layout = html.Div(
                 html.H4('Top n citation venues'),
                 dcc.Dropdown(
                     id="bar-chart-x-dropdown",
-                    options=[3,4,5,6,7,8,9],
+                    options=[3,4,5,6,7,8],
                     value=5,
                     clearable=False,
                 ),

@@ -108,11 +108,11 @@ html, body {
     position: relative;
     box-sizing: border-box;
     border-color: #0071e3;
-    border-style: dashed;
+    /* border-style: dashed; */
 }
 .river {
     width: 100%;
-    height: 20%;
+    height: 30%;
     position: fixed;
     bottom: 0;
     left: 0;
@@ -124,6 +124,11 @@ html, body {
     background-color: #FBFBFB;
   }
 
+#river_fig{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
 .river img{
     height: 20px;
 }
