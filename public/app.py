@@ -1,5 +1,6 @@
 from dash import Dash, html, dash_table, dcc, callback, Output, Input
 import plotly.graph_objects as go
+import plotly.express as px
 import networkx as nx
 import pandas as pd
 import dash
@@ -227,7 +228,25 @@ def generate_race_fig(x_range):
         src_doc = file.read().replace('%value1%', value1).replace('%value2%', value2)
     return src_doc
 src_doc = generate_race_fig(None)
-
+##############################################################################################################
+def generate_bar_chart(top_n):
+    df = pd.read_csv('../demo_dataset.csv')
+    df['Year'] = df['Date'].str[0:4].astype('int')
+    gb = df.groupby(['Venue', 'Year']).sum(numeric_only=True)
+    gb = gb.groupby(level=0).filter(lambda x: len(x) > 2 )
+    first_n = gb.reset_index().groupby('Venue').sum(numeric_only=True).sort_values('Paper Citation Count', ascending=False).reset_index()['Venue'][0:top_n].tolist()
+    df_clean = df[df['Venue'].isin(first_n)].sort_values('Paper Citation Count').reset_index().drop(['index'], axis=1)
+    bar_fig = px.bar(df_clean, x="Year", y="Paper Citation Count", 
+                 color="Venue", barmode="group", hover_name = "Title")
+    bar_fig.update_layout(
+        hoverlabel=dict(
+            bgcolor="white",
+            font_size=16,
+            font_family="Rockwell"
+        )
+    )
+    return bar_fig
+bar_fig = generate_bar_chart(3)
 ##############################################################################################################
 # show the figures using dash
 external_stylesheets = ['assets/css/style.css']
@@ -262,6 +281,19 @@ app.layout = html.Div(
             html.Div(
                 className='figure',
                 children=[
+                html.H4('Top n citation venues'),
+                dcc.Dropdown(
+                    id="bar-chart-x-dropdown",
+                    options=[3,4,5,6,7,8,9],
+                    value=5,
+                    clearable=False,
+                ),
+                dcc.Graph(id="bar_fig", figure=bar_fig),  
+                ]
+            ),
+            html.Div(
+                className='figure',
+                children=[
                     html.Iframe(
                         id='race_fig',
                         srcDoc=src_doc,
@@ -287,12 +319,14 @@ app.layout = html.Div(
     Output('node_fig', 'figure'),
     Output('river_fig', 'figure'),
     Output('race_fig', 'srcDoc'),
-    Input('river_fig', 'relayoutData'))
+    Output("bar_fig", "figure"),
+    Input('river_fig', 'relayoutData'),
+    Input("bar-chart-x-dropdown", "value"))
     
-def update_figure(relayoutData):
+def update_figure(relayoutData, top_n):
     if relayoutData is None:
         node_fig = generate_node_fig(None)
-        return node_fig, river_fig, src_doc
+        return node_fig, river_fig, src_doc, generate_bar_chart(None)
     else:
         # print(relayoutData)
         if 'xaxis.range[0]' in relayoutData:
@@ -300,16 +334,17 @@ def update_figure(relayoutData):
             river_fig.update_layout(xaxis_range=x_range)
             node_fig = generate_node_fig(x_range)
             race_fig = generate_race_fig(x_range)
-            return node_fig, river_fig, race_fig
+            return node_fig, river_fig, race_fig, generate_bar_chart(top_n)
         elif 'xaxis.autorange' in relayoutData:
             river_fig.update_layout(xaxis_range=None, yaxis_range=None)
             node_fig = generate_node_fig(None)
             race_fig = generate_race_fig(None)
-            return node_fig, river_fig, race_fig
+            return node_fig, river_fig, race_fig, generate_bar_chart(top_n)
         else:
             node_fig = generate_node_fig(None)
             race_fig = generate_race_fig(None)
-            return node_fig, river_fig, race_fig
+            return node_fig, river_fig, race_fig, generate_bar_chart(top_n)
+
 
 # Run the Dash application
 if __name__ == '__main__':
