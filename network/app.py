@@ -132,11 +132,11 @@ def generate_node_fig(x_range):
             G_top.remove_node(node)
 
     # Generate the layout of the graph
-    pos = nx.kamada_kawai_layout(G_top)
+    # pos = nx.kamada_kawai_layout(G_top)
     # pos = nx.spring_layout(G_top)
     # pos = nx.fruchterman_reingold_layout(G_top)
     # pos = nx.spectral_layout(G_top)
-    # pos = nx.circular_layout(G_top)
+    pos = nx.circular_layout(G_top)
 
 
     # Extract node positions and edge coordinates
@@ -177,6 +177,7 @@ def generate_node_fig(x_range):
             opacity=0.9,
             size=node_size,  # Update the marker size based on co-occurrences
             sizemode='area',
+            sizeref=2. * max(node_size) / (20. ** 2),
         ))
 
     # Create a list of node labels
