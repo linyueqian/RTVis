@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed:300,300i,400,400i,700i" rel="stylesheet">
+  <meta charset="utf-8">
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<main class="main-content" id="app">
+  <section class="section">
+    <div class="container">
+      <div id="chart-card" class="card">
+        <div class="card-body position-relative">
+          <div class="text-right mb-4">
+            <button type="button" v-on:click="loadExample('abstract')" class="btn btn-outline-primary" data-toggle="button" aria-pressed="false" autocomplete="off">Load Data</button>
+            <button type="button" class="btn btn-xs btn-outline-primary" v-on:click="checkForm">Start/Restart</button>
+            <button type="button" class="btn btn-xs btn-outline-primary" v-on:click="stopRace">Stop</button>
+          </div>
+          <div id="chartDiv" style="width:80%; height: 550px"></div>
+          <p style="position:absolute;top:50%;left:50%;font-size:1.125rem;transform: translate(-50%,-50%)" v-if="interval == null"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.1.2/papaparse.min.js"></script>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.15/lodash.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+<script src="assets/barchartrace.js"></script>
+
+
+<script>
+    // Access the values from the query parameters
+    var start = '%value1%';  // Replace with the actual placeholder from the Dash code
+    var end = '%value2%';  // Replace with the actual placeholder from the Dash code
+    
+    const app = new Vue({
+        el: '#app',
+        data: {
+            errors: [],
+            file: null,
+            csv_data: null,
+            interval: null,
+            duration: 60,
+            tickDuration: 500,
+            top_n: 10,
+            title: null,
+            fileplaceholder: "Choose file"
+        },
+        methods: {
+            loadExample: function (setting_name) {
+                var self = this;
+                self.duration = settings[setting_name].duration;
+                self.top_n = settings[setting_name]['top_n'];
+                self.title = settings[setting_name].title;
+                Papa.parse(settings[setting_name].url, {
+                        download: true,
+                        header: true,
+                        skipEmptyLines: true,
+                        complete: function (results) {
+                            if (Object.keys(results.data[0]).length === 3) {
+                                results.data = reshapeData(results.data)
+                            }
+                            self.csv_data = results.data;
+                        }
+                    }
+                )
+            },
+    
+            stopRace: function () {
+                if (!this.interval) {
+                    return
+                } else {
+                    this.interval.stop()
+                }
+            },
+            checkForm: function (e) {
+                var self = this;
+                if (self.interval !== null) {
+                    self.interval.stop()
+                }
+                if (!this.csv_data) {
+                    return
+                }
+
+                if (self.tickDuration && self.top_n) {
+                    e.preventDefault();
+                    this.top_n = parseInt(self.top_n);
+                    this.duration = parseInt(self.duration);
+                    this.tickDuration = self.duration / self.csv_data.length * 1000
+                    let chartDiv = document.getElementById("chartDiv");
+                    var data = JSON.parse(JSON.stringify(self.csv_data))
+                    self.interval = createBarChartRace(data, self.top_n, self.tickDuration, start, end);
+                }
+
+                self.errors = [];
+
+                if (!self.csv_data) {
+                    self.errors.push('csv file is required');
+                }
+                if (!self.tickDuration) {
+                    self.errors.push('Time between frames required.');
+                }
+                if (!self.top_n) {
+                    self.errors.push('Number of bars to display required.');
+                }
+                e.preventDefault();
+                window.scrollTo({top: $("#chart-card").offset().top - 10, behavior: 'smooth'});
+            }
+        },
+        delimiters: ["((", "))"]
+
+    });
+
+
+    /*
+    reshapes the data from the second accepted csv format to the other :
+    (one row per contender and per date) => (one row per date (ordered) and one column per contender.)
+    */
+    function reshapeData(data) {
+        // groupby dates (first column)
+        column_names = new Set(data.map(x => x[Object.keys(x)[1]]));
+        const grouped_by_date = _.groupBy(data, (e) => e[Object.keys(e)[0]]);
+        return Object.keys(grouped_by_date).sort().map((k) => {
+            item = {'date': k};
+            column_names.forEach((n) => item[n] = 0);
+            grouped_by_date[k].forEach((e) => item[e[Object.keys(e)[1]]] = e[Object.keys(e)[2]]);
+            return item
+        })
+    }
+
+    // settings for the example data
+    const settings = {
+        "abstract": {
+            "duration": 30,
+            "top_n": 8,
+            "url": "data/barChartRace.csv"
+        }
+    }
+
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
