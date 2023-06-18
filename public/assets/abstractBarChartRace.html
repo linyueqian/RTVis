@@ -18,7 +18,7 @@
             <button type="button" class="btn btn-xs btn-outline-primary" v-on:click="checkForm">Start/Restart</button>
             <button type="button" class="btn btn-xs btn-outline-primary" v-on:click="stopRace">Stop</button>
           </div>
-          <div id="chartDiv" style="width:80%; height: 550px"></div>
+          <div id="chartDiv" style="width:100%; height: calc(22.5vh - 10px);"></div>
           <p style="position:absolute;top:50%;left:50%;font-size:1.125rem;transform: translate(-50%,-50%)" v-if="interval == null"></p>
         </div>
       </div>
@@ -35,14 +35,15 @@
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
-<script src="assets/barchartrace.js"></script>
+<script src="barchartrace.js"></script>
 
 
 <script>
     // Access the values from the query parameters
     var start = '%value1%';  // Replace with the actual placeholder from the Dash code
     var end = '%value2%';  // Replace with the actual placeholder from the Dash code
-    
+    var csvFilePath = "./data/barChartRace.csv";
+
     const app = new Vue({
         el: '#app',
         data: {
@@ -61,8 +62,7 @@
                 var self = this;
                 self.duration = settings[setting_name].duration;
                 self.top_n = settings[setting_name]['top_n'];
-                self.title = settings[setting_name].title;
-                Papa.parse(settings[setting_name].url, {
+                Papa.parse(csvFilePath, {
                         download: true,
                         header: true,
                         skipEmptyLines: true,
@@ -71,6 +71,7 @@
                                 results.data = reshapeData(results.data)
                             }
                             self.csv_data = results.data;
+                            console.log(self.csv_data)
                         }
                     }
                 )
@@ -98,7 +99,7 @@
                     this.duration = parseInt(self.duration);
                     this.tickDuration = self.duration / self.csv_data.length * 1000
                     let chartDiv = document.getElementById("chartDiv");
-                    var data = JSON.parse(JSON.stringify(self.csv_data))
+                    var data = JSON.parse(JSON.stringify(self.csv_data));
                     self.interval = createBarChartRace(data, self.top_n, self.tickDuration, start, end);
                 }
 
@@ -143,7 +144,6 @@
         "abstract": {
             "duration": 30,
             "top_n": 8,
-            "url": "https://raw.githubusercontent.com/linyueqian/RTVis/main/public/assets/data/barChartRace.csv?token=GHSAT0AAAAAAB6BZDTV6A6OJS26ZTXCD3GGZEPGPXA"
         }
     }
 
