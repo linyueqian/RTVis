@@ -219,13 +219,16 @@ def extract_ymd(time_str):
     time = time.date()
     return str(time)    
 def generate_race_fig(x_range):
+    # read string from "/public/assets/data/barChartRace.csv" and keep it as csv format
+    csv_string = open('assets/data/barChartRace.csv', 'r').read()
+    csv_string = csv_string.replace('\n', '\\n')
     if x_range is None:
         value1 = min_date_ymd
         value2 = max_date_ymd
     else:
         value1, value2 = [extract_ymd(x) for x in x_range]
     with open('assets/abstractBarChartRace.html', 'r') as file:
-        src_doc = file.read().replace('%value1%', value1).replace('%value2%', value2)
+        src_doc = file.read().replace('%value1%', value1).replace('%value2%', value2).replace('%csv_string%', csv_string)
     return src_doc
 src_doc = generate_race_fig(None)
 ##############################################################################################################
