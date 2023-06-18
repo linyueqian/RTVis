@@ -26,9 +26,6 @@ app.layout = html.Div([
 
 @app.callback(
     Output("bar-chart-x-graph", "figure"), 
-    # Output('bar-chart', 'clickData'),
-    # Input('bar-chart', 'clickData'),
-    # [State('bar-chart', 'figure')],
     Input("bar-chart-x-dropdown", "value"))
 
 def update_bar_chart(top_n):
@@ -47,9 +44,14 @@ def update_bar_chart(top_n):
     fig.update_layout(
         hoverlabel=dict(
             bgcolor="white",
-            font_size=16,
+            font_size=10,
             font_family="Rockwell"
-        )
+        ),
+        legend=dict(
+            x = -0.1,
+            y = -1.0
+        ),
+        autosize = True
     )
     return fig
 
