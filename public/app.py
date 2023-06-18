@@ -230,30 +230,50 @@ src_doc = generate_race_fig(None)
 
 ##############################################################################################################
 # show the figures using dash
-app = dash.Dash(__name__)
+external_stylesheets = ['assets/css/style.css']
+app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 app.layout = html.Div(
     children=[
         html.Div(
-            className='figure',
+            className='title',
             children=[
-                dcc.Graph(id='node_fig', figure=node_fig)
-            ]
-        ),
+                html.A(
+                    className='button-left',
+                    href='https://github.com/linyueqian/RTVis',
+                    children='Code'
+                ),
+                html.A(
+                    className='button-right',
+                    href='https://docs.rtvis.design',
+                    children='Docs'
+                ),
+                html.H1('Research Trend Visualization'),
+                html.P('Visualize research trends in a specific field')
+            ]),
         html.Div(
-            className='figure',
+            className='container',
             children=[
-                html.Iframe(
-                    id='race_fig',
-                    srcDoc=src_doc,
-                    style={
-                        'width': '100%',
-                        'height': '800px',
-                        'border': 'none',
-                        'transform': 'scale(0.7) translateY(-20%)'
-                    }
-                )
-            ]
-        ),
+            html.Div(
+                className='figure',
+                children=[
+                    dcc.Graph(id='node_fig', figure=node_fig)
+                ]
+            ),
+            html.Div(
+                className='figure',
+                children=[
+                    html.Iframe(
+                        id='race_fig',
+                        srcDoc=src_doc,
+                        style={
+                            'width': '100%',
+                            'height': '800px',
+                            'border': 'none',
+                            'transform': 'scale(0.7) translateY(-20%)'
+                        }
+                    )
+                ]
+            )]),
         html.Div(
             className='river',
             children=[
@@ -274,7 +294,7 @@ def update_figure(relayoutData):
         node_fig = generate_node_fig(None)
         return node_fig, river_fig, src_doc
     else:
-        print(relayoutData)
+        # print(relayoutData)
         if 'xaxis.range[0]' in relayoutData:
             x_range = [relayoutData['xaxis.range[0]'], relayoutData['xaxis.range[1]']]
             river_fig.update_layout(xaxis_range=x_range)

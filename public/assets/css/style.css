@@ -20,6 +20,18 @@ html, body {
     align-items: center;
     justify-content: center;
 }
+@media (min-width: 1200px) {
+    .container {
+        width: 1200px;
+        margin: 0 auto;
+    }
+}
+
+@media (min-width: 1024px) {
+    .figure {
+        flex-basis: calc(33.3333% - 20px);
+    }
+}
 .title{
     margin-top: 5px;
     font-size: 20px;
@@ -107,6 +119,8 @@ html, body {
     padding: 10px;
     position: relative;
     box-sizing: border-box;
+    border-color: #0071e3;
+    border-style: dashed;
 }
 .river {
     width: 100%;
