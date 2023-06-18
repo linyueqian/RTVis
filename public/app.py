@@ -9,10 +9,12 @@ df = pd.read_excel('../demo_dataset_new.xlsx')
 df['Date'] = pd.to_datetime(df['Date'])
 # sort by df['Date]
 df = df.sort_values(by='Date')
-min_month = df['Date'].dt.to_period('M').min()
-max_month = df['Date'].dt.to_period('M').max()
-######
-# field
+min_date_ymd = df['Date'].min().to_period('M').to_timestamp().strftime('%Y-%m-%d')
+min_month = datetime.datetime.strptime(min_date_ymd.split('-')[0] + '-' + min_date_ymd.split('-')[1], '%Y-%m')
+max_date_ymd = df['Date'].max().to_period('M').to_timestamp().strftime('%Y-%m-%d')
+max_month = datetime.datetime.strptime(max_date_ymd.split('-')[0] + '-' + max_date_ymd.split('-')[1], '%Y-%m')
+############################################
+# field theme river
 fields_of_struct = []
 for i in range(len(df)):
     try:
