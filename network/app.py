@@ -217,7 +217,7 @@ app.layout = html.Div([
     Input('river_fig', 'relayoutData'))
     
 def update_figure(relayoutData):
-    # print(relayoutData)
+    print(relayoutData)
     if relayoutData is None:
         node_fig = generate_node_fig(None)
         return node_fig, river_fig

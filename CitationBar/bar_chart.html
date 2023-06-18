@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+  <div id="chart"></div>
+
+  <script>
+    // Sample data
+    var trace1 = {
+      x: ['Category 1', 'Category 2', 'Category 3'],
+      y: [10, 15, 7],
+      type: 'bar',
+      name: 'Group 1'
+    };
+
+    var trace2 = {
+      x: ['Category 1', 'Category 2', 'Category 3'],
+      y: [12, 9, 5],
+      type: 'bar',
+      name: 'Group 2'
+    };
+
+    var data = [trace1, trace2];
+
+    var layout = {
+      barmode: 'group'
+    };
+
+    Plotly.newPlot('chart', data, layout);
+
+    // Function to handle bar click event
+    function handleClick(eventData) {
+      console.log('Clicked bar:', eventData.points[0].x);
+      // Add your custom logic here when a bar is clicked
+    }
+
+    // Attach the click event handler to the chart
+    var chart = document.getElementById('chart');
+    chart.on('plotly_click', handleClick);
+  </script>
+</body>
+</html>
