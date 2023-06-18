@@ -1,9 +1,6 @@
 <!DOCTYPE html>
-<html lang="fr">
 <head>
-  <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed:300,300i,400,400i,700i" rel="stylesheet">
   <meta charset="utf-8">
-  <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -11,8 +8,6 @@
 <main class="main-content" id="app">
   <section class="section">
     <div class="container">
-      <div id="chart-card" class="card">
-        <div class="card-body position-relative">
           <div class="text-right mb-4">
             <button type="button" v-on:click="loadExample('abstract')" class="btn btn-outline-primary" data-toggle="button" aria-pressed="false" autocomplete="off">Load Data</button>
             <button type="button" class="btn btn-xs btn-outline-primary" v-on:click="checkForm">Start/Restart</button>
@@ -20,13 +15,10 @@
           </div>
           <div id="chartDiv" style="width:100%; height: calc(22.5vh - 10px);"></div>
           <p style="position:absolute;top:50%;left:50%;font-size:1.125rem;transform: translate(-50%,-50%)" v-if="interval == null"></p>
-        </div>
-      </div>
     </div>
   </section>
 </main>
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.1.2/papaparse.min.js"></script>
 <script src="https://d3js.org/d3.v5.min.js"></script>
