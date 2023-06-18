@@ -1,10 +1,8 @@
-import pandas as pd
-import networkx as nx
-import datetime
-import time
-import plotly.graph_objects as go
-import dash
 from dash import Dash, html, dash_table, dcc, callback, Output, Input
+import plotly.graph_objects as go
+import networkx as nx
+import pandas as pd
+import dash
 
 # Read the Excel file into a DataFrame
 df = pd.read_excel('demo_dataset.xlsx')
@@ -215,36 +213,21 @@ def generate_node_fig(x_range):
 node_fig = generate_node_fig(None)
 ##############################################################################################################
 # bar chart race
-def convert_time_to_ordinal(time_str):
-    time_str = time_str.split('.')[0]
-    time_str = time_str.replace('T', ' ')
-    time_str = time_str.replace('Z', '')
-    time_str = time_str.replace(' ', '-')
-    time_str = time_str.replace(':', '-')
-    time_str = time_str.split('-')
-    time_str = [int(x) for x in time_str]
-    time_str = datetime.datetime(time_str[0], time_str[1], time_str[2], time_str[3], time_str[4], time_str[5])
-    return int(time.mktime(time_str.timetuple()))
 def extract_ymd(time_str):
-    time_str = time_str.split('.')[0]
-    time_str = time_str.replace('T', ' ')
-    time_str = time_str.replace('Z', '')
-    time_str = time_str.replace(' ', '-')
-    time_str = time_str.replace(':', '-')
-    time_str = time_str.split('-')
-    time_str = [str(int(x)) for x in time_str]
-    return time_str[0]+'-'+time_str[1]+'-'+time_str[2]
+    time = pd.to_datetime(time_str)
+    time = time.date()
+    return str(time)    
 def generate_race_fig(x_range):
     if x_range is None:
         value1 = min_date_ymd
         value2 = max_date_ymd
-        # print(value1, value2)
     else:
         value1, value2 = [extract_ymd(x) for x in x_range]
     with open('assets/abstractBarChartRace.html', 'r') as file:
         src_doc = file.read().replace('%value1%', value1).replace('%value2%', value2)
     return src_doc
 src_doc = generate_race_fig(None)
+
 ##############################################################################################################
 # show the figures using dash
 app = dash.Dash(__name__)
@@ -287,11 +270,11 @@ app.layout = html.Div(
     Input('river_fig', 'relayoutData'))
     
 def update_figure(relayoutData):
-    # print(relayoutData)
     if relayoutData is None:
         node_fig = generate_node_fig(None)
         return node_fig, river_fig, src_doc
     else:
+        print(relayoutData)
         if 'xaxis.range[0]' in relayoutData:
             x_range = [relayoutData['xaxis.range[0]'], relayoutData['xaxis.range[1]']]
             river_fig.update_layout(xaxis_range=x_range)
