@@ -6,7 +6,7 @@ import pandas as pd
 import dash
 
 # Read the Excel file into a DataFrame
-df = pd.read_excel('demo_dataset.xlsx')
+df = pd.read_csv('demo_dataset.csv')
 df['Date'] = pd.to_datetime(df['Date'])
 # sort by df['Date]
 df = df.sort_values(by='Date')
@@ -83,9 +83,9 @@ def extract_authors(entry):
     return authors
 def generate_node_fig(x_range):
     if x_range is None:
-        df = pd.read_excel('demo_dataset.xlsx').fillna('')
+        df = pd.read_csv('demo_dataset.csv').fillna('')
     else:
-        df = pd.read_excel('demo_dataset.xlsx').fillna('')
+        df = pd.read_csv('demo_dataset.csv').fillna('')
         df = df[(df['Date'] >= x_range[0]) & (df['Date'] <= x_range[1])]
     # Extract the author names from the DataFrame
     author_list = df['Author Name'].tolist()
@@ -233,7 +233,7 @@ def generate_race_fig(x_range):
 src_doc = generate_race_fig(None)
 ##############################################################################################################
 def generate_bar_chart(top_n):
-    df = pd.read_csv('../demo_dataset.csv')
+    df = pd.read_csv('demo_dataset.csv')
     df['Year'] = df['Date'].str[0:4].astype('int')
     # sort based on Venue alphabetically
     # df = df.sort_values('Venue')
