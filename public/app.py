@@ -260,6 +260,8 @@ bar_fig = generate_bar_chart(5)
 # show the figures using dash
 external_stylesheets = ['assets/css/style.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+app.title = 'Research Trend Visualization'
+app.favicon = 'assets/favicon.ico'
 app.layout = html.Div(
     children=[
         html.Div(
