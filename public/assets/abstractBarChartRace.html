@@ -118,8 +118,11 @@
         },  
         created() {
             // Load the example data on Vue app initialization
-            this.loadExample('abstract');
+            if (self.interval == null) {
+                this.loadExample('abstract');
+            }
             this.checkForm();
+            console.log(this.interval)
         },
         delimiters: ["((", "))"]
 
