@@ -83,7 +83,7 @@
                     this.interval.stop()
                 }
             },
-            checkForm: function (e) {
+            checkForm: function () {
                 var self = this;
                 if (self.interval !== null) {
                     self.interval.stop()
@@ -93,7 +93,7 @@
                 }
 
                 if (self.tickDuration && self.top_n) {
-                    e.preventDefault();
+                    //e.preventDefault();
                     this.top_n = parseInt(self.top_n);
                     this.duration = parseInt(self.duration);
                     this.tickDuration = self.duration / self.csv_data.length * 1000
@@ -113,19 +113,13 @@
                 if (!self.top_n) {
                     self.errors.push('Number of bars to display required.');
                 }
-                e.preventDefault();
-                window.scrollTo({top: $("#chart-card").offset().top - 10, behavior: 'smooth'});
+                //e.preventDefault();
             }
         },  
         created() {
             // Load the example data on Vue app initialization
             this.loadExample('abstract');
-            this.checkForm();
-            // pause for 0.1 seconds to let the page load
-            setTimeout(() => {
-                window.scrollTo({top: $("#chart-card").offset().top - 10, behavior: 'smooth'});
-            }, 100);
-            this.stop();
+            this.checkForm(null);
         },
         delimiters: ["((", "))"]
 
