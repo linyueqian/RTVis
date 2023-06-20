@@ -99,13 +99,18 @@ html, body {
     margin: 0;
     padding: 0;
   }
-.container {
+
+.graph-container {
     width: 100%;
+    /* height is 75% of the viewport height */
+    height: 70vh;
     padding: 0 5px;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: center;
+    position: absolute;
+    overflow: clip;
 }
 .title{
     margin-top: 5px;
@@ -187,19 +192,36 @@ html, body {
     font-style: normal;
     margin: 0;
 }
+.container{
+    background-color: #fbfbfd;
+    height: 100vh;
+}
 .figure {
     width: 32%;
-    height: calc(22.5vh - 20px);
-    margin-bottom: 20px;
-    /* padding: 10px; */
+    height: 100vh;
+    /* margin-bottom: 20px; */
+    padding: 12px;
     position: relative;
     box-sizing: border-box;
-    border-color: #0071e3;
+    /* border-color: #0071e3; */
     /* border-style: dashed; */
+    overflow: hidden;
+}
+#chartDiv{
+    width: 100%;
+    calc(20vh + 20px);
+}
+.grey {
+    background-color: #fbfbfd;
+}
+
+.black {
+    background-color: #161617;
+    color: rgb(245, 245, 247);
 }
 .river {
     width: 100%;
-    height: 30%;
+    height: 30vh;
     position: fixed;
     bottom: 0;
     left: 0;

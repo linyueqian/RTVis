@@ -71,7 +71,7 @@ for field in field_all_traces:
 
 river_fig = go.Figure()
 river_fig.update_layout(plot_bgcolor='#FBFBFB',
-                        paper_bgcolor='#FBFBFB', margin=dict(l=0, r=0, t=0, b=5))
+                        paper_bgcolor='#FBFBFB', margin=dict(l=5, r=5, t=0, b=10))
 # river_fig.update_xaxes(gridcolor='#F86F03')
 river_fig.update_yaxes(gridcolor='#888')
 for field in field_trace_dict.keys():
@@ -216,8 +216,9 @@ def generate_node_fig(x_range, top_n):
                          layout=go.Layout(
         showlegend=False,
         hovermode='closest',
-        margin=dict(b=20, l=5, r=5, t=40),
-        plot_bgcolor='rgba(0,0,0,0)',
+        margin=dict(b=0, l=0, r=5, t=5),
+        plot_bgcolor='#fbfbfd',
+        paper_bgcolor='#fbfbfd',
         xaxis=dict(showgrid=False, zeroline=False,
                    showticklabels=False),
         yaxis=dict(showgrid=False, zeroline=False,
@@ -268,16 +269,34 @@ def generate_bar_chart(top_n):
         'Paper Citation Count').reset_index().drop(['index'], axis=1)
     bar_fig = px.bar(df_clean, x="Year", y="Paper Citation Count",
                      color="Venue", barmode="group", hover_name="Title")
-    height = 1000
     bar_fig.update_layout(
+        plot_bgcolor='#161617',
+        paper_bgcolor='#161617',
         hoverlabel=dict(
             bgcolor="white",
             font_size=16,
-            font_family="Rockwell"
+            font_family='"SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif'
+        ),
+        xaxis=dict(
+            linecolor='rgb(245, 245, 247)',
+            tickfont=dict(color='rgb(245, 245, 247)'),
+        ),
+        yaxis=dict(
+            linecolor='rgb(245, 245, 247)',
+            tickfont=dict(color='rgb(245, 245, 247)'),
+        ),
+        font=dict(
+            color='rgb(245, 245, 247)',
+            family='"SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif'
         ),
         legend=dict(
             x=-0.1,
             y=-1.2
+        ),
+        margin=dict(
+            l=5,
+            r=5,
+            b=0,
         ))
     return bar_fig
 
@@ -308,10 +327,11 @@ app.layout = html.Div(
                 html.P('Visualize research trends in a specific field')
             ]),
         html.Div(
-            className='container',
+            className='graph-container grey',
+            # style={'width': '100%', 'height': '100%'},
             children=[
                 html.Div(
-                    className='figure',
+                    className='figure grey',
                     children=[
                         html.H4([
                                 "Top ",
@@ -331,7 +351,7 @@ app.layout = html.Div(
                     ]
                 ),
                 html.Div(
-                    className='figure',
+                    className='figure black',
                     children=[
                         html.Div([
                             html.H4([
@@ -353,7 +373,7 @@ app.layout = html.Div(
                     ]
                 ),
                 html.Div(
-                    className='figure',
+                    className='figure grey',
                     children=[
                         html.H4([
                             "Top ",
@@ -372,7 +392,12 @@ app.layout = html.Div(
                         html.Iframe(
                             id='race_fig',
                             srcDoc=src_doc,
-                            style={'width': '100%', 'height': '100%','border-width': '0'}
+                            style={
+                                'width': '100%',
+                                'height': '800px',
+                                'border': 'none',
+                                'transform': 'scale(0.7) translateY(-20%)'
+                            }
                         )
                     ]
                 )]),

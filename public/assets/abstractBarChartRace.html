@@ -4,7 +4,7 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body style="background-color: #fbfbfd;">
 <main class="main-content" id="app">
   <section class="section">
     <div class="figure">
@@ -13,7 +13,7 @@
             <button type="button" class="btn btn-xs btn-outline-primary" v-on:click="checkForm">Start/Restart</button>
             <button type="button" class="btn btn-xs btn-outline-primary" v-on:click="stopRace">Stop</button>
           </div>
-          <div id="chartDiv" style="width:100%; height: 100%;"></div>
+          <div id="chartDiv" style="width:100%; height: calc(22.5vh + 20px);"></div>
           <p style="position:absolute;top:50%;left:50%;font-size:1.125rem;transform: translate(-50%,-50%)" v-if="interval == null"></p>
     </div>
   </section>
