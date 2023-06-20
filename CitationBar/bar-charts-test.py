@@ -1,60 +1,60 @@
 import webbrowser
 import dash
-import dash_core_components as dcc
-from dash import html
+from dash import Dash, dcc, html, Input, Output
 from dash.dependencies import Input, Output, State
+import pandas as pd
+import numpy as np
+import plotly.express as px
 
-# Data for the bar chart
-x = ['A', 'B', 'C']
-y1 = [10, 15, 7]
-y2 = [12, 9, 5]
 
-# URLs corresponding to each bar
-urls = ['https://example.com/page1', 'https://example.com/page2', 'https://example.com/page3']
+
+# app = dash.Dash(__name__)
+
+
+
+
 
 # Create the app
 app = dash.Dash(__name__)
 
+app.layout = html.Div([
+    html.H4('Top n citation venues'),
+    dcc.Dropdown(
+        id="bar-chart-x-dropdown",
+        options=[3,4,5,6,7,8,9],
+        value=5,
+        clearable=False,
+    )
+
+])
+df = pd.read_csv('../demo_dataset.csv')
+df['Year'] = df['Date'].str[0:4].astype('int')
+gb = df.groupby(['Venue', 'Year']).sum(numeric_only=True)
+gb = gb.groupby(level=0).filter(lambda x: len(x) > 2 )
+first_n = gb.reset_index().groupby('Venue').sum(numeric_only=True).sort_values('Paper Citation Count', ascending=False).reset_index()['Venue'][0:5].tolist()
+df_clean = df[df['Venue'].isin(first_n)].sort_values('Paper Citation Count').reset_index().drop(['index'], axis=1)
+
 # Define the bar chart
 fig = dcc.Graph(
     id='bar-chart',
-    figure={
-        'data': [
-            {
-                'x': x,
-                'y': y1,
-                'name': 'Series 1',
-                'customdata': urls,
-                'hovertemplate': '<b>%{x}</b><br>Value: %{y}<extra></extra>',
-                'type': 'bar'
-            },
-            {
-                'x': x,
-                'y': y2,
-                'name': 'Series 2',
-                'customdata': urls,
-                'hovertemplate': '<b>%{x}</b><br>Value: %{y}<extra></extra>',
-                'type': 'bar'
-            }
-        ],
-        'layout': {
-            'barmode': 'group'
-        }
-    }
+    figure=px.bar(df_clean, x="Year", y="Paper Citation Count", 
+                 color="Venue", barmode="group", hover_name = "Title")
 )
 
 # Define the callback to handle bar clicks
 @app.callback(
     Output('bar-chart', 'clickData'),
-    [Input('bar-chart', 'clickData')],
+    Input('bar-chart', 'clickData'),
     [State('bar-chart', 'figure')]
 )
 def bar_click(click_data, figure):
     if click_data is not None:
-        point_inds = click_data['points'][0]['pointIndex']
-        trace_index = click_data['points'][0]['curveNumber']
-        url = figure['data'][trace_index]['customdata'][point_inds]
-        webbrowser.open_new_tab(url)
+
+        title = click_data['points'][0]['hovertext']
+        #replace spaces in title with "%20"
+        title = title.replace(" ", "%20")
+        # print(title)
+        webbrowser.open_new_tab("https://scholar.google.com/scholar?q="+title+"&btnG=&hl=en&as_sdt=0%2C5")
 
     # Return clickData to update the chart's clickData property
     return click_data
