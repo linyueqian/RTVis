@@ -101,6 +101,7 @@ html, body {
   }
 
 .graph-container {
+    margin-top: -10px;
     width: 100%;
     /* height is 75% of the viewport height */
     height: 70vh;
