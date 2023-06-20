@@ -1,7 +1,7 @@
 from dash import Dash, dcc, html, Input, Output
 import plotly.express as px
 import pandas as pd
-import dash_core_components as dcc
+from dash import dcc
 from dash.dependencies import Input, Output, State
 import webbrowser
 import numpy as np
@@ -41,15 +41,16 @@ def update_bar_chart(top_n):
     # df_clean = pd.read_csv('./test.csv')
     fig = px.bar(df_clean, x="Year", y="Paper Citation Count", 
                  color="Venue", barmode="group", hover_name = "Title")
+    # height = 10000
     fig.update_layout(
         hoverlabel=dict(
             bgcolor="white",
-            font_size=10,
+            font_size=11,
             font_family="Rockwell"
         ),
         legend=dict(
             x = -0.1,
-            y = -1.0
+            y = -1.5
         ),
         autosize = True
     )
