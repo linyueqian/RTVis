@@ -2,8 +2,8 @@ from collections import Counter
 import pandas as pd
 
 stopwords = pd.read_csv('./assets/data/stop_words.csv')
-sw = stopwords['a'].tolist()
-sw.append('a')
+sw = stopwords['0'].tolist()
+sw.append('0')
 
 df = pd.read_excel('./demo_dataset.xlsx')
 dframe = df[['Date','Abstract']]
