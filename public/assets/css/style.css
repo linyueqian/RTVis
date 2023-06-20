@@ -209,7 +209,7 @@ html, body {
 }
 #chartDiv{
     width: 100%;
-    calc(20vh + 20px);
+    height: calc(20vh + 20px);
 }
 .grey {
     background-color: #fbfbfd;
