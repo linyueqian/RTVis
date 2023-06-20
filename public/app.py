@@ -372,12 +372,7 @@ app.layout = html.Div(
                         html.Iframe(
                             id='race_fig',
                             srcDoc=src_doc,
-                            style={
-                                'width': '100%',
-                                'height': '800px',
-                                'border': 'none',
-                                'transform': 'scale(0.7) translateY(-20%)'
-                            }
+                            style={'width': '100%', 'height': '100%','border-width': '0'}
                         )
                     ]
                 )]),
