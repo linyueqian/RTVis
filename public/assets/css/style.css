@@ -206,6 +206,7 @@ html, body {
     /* border-color: #0071e3; */
     /* border-style: dashed; */
     overflow: hidden;
+    border-radius: 5px;
 }
 .grey {
     background-color: #fbfbfd;
