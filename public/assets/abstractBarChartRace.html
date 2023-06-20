@@ -10,10 +10,10 @@
     <div class="container">
           <div class="text-right mb-4">
             <!-- <button type="button" v-on:click="loadExample('abstract')" class="btn btn-outline-primary" data-toggle="button" aria-pressed="false" autocomplete="off">Load Data</button> -->
-            <button type="button" class="btn btn-xs btn-outline-primary" v-on:click="checkForm">Start/Restart</button>
-            <button type="button" class="btn btn-xs btn-outline-primary" v-on:click="stopRace">Stop</button>
+            <button type="button" class="btn btn-xs btn-outline-primary" v-on:click="checkForm" style="margin-top: 2vh;">Start/Restart</button>
+            <button type="button" class="btn btn-xs btn-outline-primary" v-on:click="stopRace" style="margin-top: 2vh;">Stop</button>
           </div>
-          <div id="chartDiv" style="width:100%; height: calc(22.5vh + 20px);"></div>
+          <div id="chartDiv" style="width:100%; height: 60vh;"></div>
           <p style="position:absolute;top:50%;left:50%;font-size:1.125rem;transform: translate(-50%,-50%)" v-if="interval == null"></p>
     </div>
   </section>
@@ -149,8 +149,8 @@
     
         let chartDiv = document.getElementById("chartDiv");
         chartDiv.textContent = '';
-        let width = chartDiv.clientWidth + 20;
-        let height = chartDiv.clientHeight + 170;
+        let width = chartDiv.clientWidth;
+        let height = chartDiv.clientHeight;
     
         let svg = d3.select(chartDiv).append("svg")
             .attr("width", width)

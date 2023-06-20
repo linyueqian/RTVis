@@ -194,7 +194,7 @@ html, body {
 }
 .container{
     background-color: #fbfbfd;
-    height: 100vh;
+    height: 60vh;
 }
 .figure {
     width: 32%;
@@ -206,10 +206,6 @@ html, body {
     /* border-color: #0071e3; */
     /* border-style: dashed; */
     overflow: hidden;
-}
-#chartDiv{
-    width: 100%;
-    height: calc(20vh + 20px);
 }
 .grey {
     background-color: #fbfbfd;
