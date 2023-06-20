@@ -36,11 +36,14 @@
     var end = '%value2%';  // Replace with the actual placeholder from the Dash code
     var csv_string = '%csv_string%';
     console.log(csv_string);
+    
+    start = new Date(start);
+    end = new Date(end);
 
     // settings for the example data
     const settings = {
         "abstract": {
-            "duration": 30,
+            "duration": 60,
             "top_n": parseInt('%top_n_words%'),
         }
     }
@@ -53,7 +56,7 @@
             csv_data: null,
             interval: null,
             duration: 60,
-            tickDuration: 500,
+            tickDuration: 50,
             top_n: 10,
             title: null,
             fileplaceholder: "Choose file"
@@ -96,7 +99,9 @@
                     //e.preventDefault();
                     this.top_n = parseInt(self.top_n);
                     this.duration = parseInt(self.duration);
-                    this.tickDuration = self.duration / self.csv_data.length * 1000
+                    delta = Math.abs(end - start);
+                    console.log(delta);
+                    this.tickDuration = self.duration / delta;
                     let chartDiv = document.getElementById("chartDiv");
                     var data = JSON.parse(JSON.stringify(self.csv_data));
                     self.interval = createBarChartRace(data, self.top_n, self.tickDuration, start, end);
@@ -226,10 +231,9 @@
         [time, row_data] = getRowData(data, column_names, 0);
     
         // start_date = d3.min(data, d => d[time_index]);
-        start_date = new Date(start);
-        console.log(start_date);
+        start_date = start;
         // end_date = d3.max(data, d => d[time_index]);
-        end_date = new Date(end);
+        end_date = end;
     
         let t = d3.scaleTime()
             .domain([start_date, end_date])
