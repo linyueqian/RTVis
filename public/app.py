@@ -228,15 +228,13 @@ def generate_node_fig(x_range, top_n):
 node_fig = generate_node_fig(None, 50)
 ##############################################################################################################
 # bar chart race
-
-
 def extract_ymd(time_str):
     time = pd.to_datetime(time_str)
     time = time.date()
     return str(time)
 
 
-def generate_race_fig(x_range):
+def generate_race_fig(x_range, top_n_words):
     # read string from "/public/assets/data/barChartRace.csv" and keep it as csv format
     csv_string = open('assets/data/barChartRace.csv', 'r').read()
     csv_string = csv_string.replace('\n', '\\n')
@@ -246,12 +244,14 @@ def generate_race_fig(x_range):
     else:
         value1, value2 = [extract_ymd(x) for x in x_range]
     with open('assets/abstractBarChartRace.html', 'r') as file:
-        src_doc = file.read().replace('%value1%', value1).replace(
-            '%value2%', value2).replace('%csv_string%', csv_string)
+        src_doc = file.read()\
+                    .replace('%value1%', value1)\
+                    .replace('%value2%', value2)\
+                    .replace('%csv_string%', csv_string)\
+                    .replace('%top_n_words%', str(top_n_words))
     return src_doc
 
-
-src_doc = generate_race_fig(None)
+src_doc = generate_race_fig(None, top_n_words=8)
 ##############################################################################################################
 
 
@@ -355,7 +355,20 @@ app.layout = html.Div(
                 html.Div(
                     className='figure',
                     children=[
-                        html.H4('Bar chart race'),
+                        html.H4([
+                            "Top ",
+                            dcc.Input(
+                                className="input",
+                                id="race-x-input",
+                                type="number",
+                                min=5,
+                                max=15,
+                                value=8,
+                                style={'display': 'inline-block', 'verticalAlign': 'middle',
+                                    'margin': '0', 'padding': '0'}
+                            ),
+                            " common words in abstract part"
+                        ]),
                         html.Iframe(
                             id='race_fig',
                             srcDoc=src_doc,
@@ -385,8 +398,10 @@ app.layout = html.Div(
     Output("bar_fig", "figure"),
     Input('river_fig', 'relayoutData'),
     Input("bar-chart-x-dropdown", "value"),
-    Input("node-x-input", "value"))
-def update_figure(relayoutData, top_n_bar, top_n_node):
+    Input("node-x-input", "value"),
+    Input("race-x-input", "value")
+    )
+def update_figure(relayoutData, top_n_bar, top_n_node, top_n_words):
     if relayoutData is None:
         node_fig = generate_node_fig(None, top_n_node)
         return node_fig, river_fig, src_doc, generate_bar_chart(None)
@@ -396,16 +411,16 @@ def update_figure(relayoutData, top_n_bar, top_n_node):
                        relayoutData['xaxis.range[1]']]
             river_fig.update_layout(xaxis_range=x_range)
             node_fig = generate_node_fig(x_range, top_n_node)
-            race_fig = generate_race_fig(x_range)
+            race_fig = generate_race_fig(x_range, top_n_words)
             return node_fig, river_fig, race_fig, generate_bar_chart(top_n_bar)
         elif 'xaxis.autorange' in relayoutData:
             river_fig.update_layout(xaxis_range=None, yaxis_range=None)
             node_fig = generate_node_fig(None, top_n_node)
-            race_fig = generate_race_fig(None)
+            race_fig = generate_race_fig(None, top_n_words)
             return node_fig, river_fig, race_fig, generate_bar_chart(top_n_bar)
         else:
             node_fig = generate_node_fig(None, top_n_node)
-            race_fig = generate_race_fig(None)
+            race_fig = generate_race_fig(None, top_n_words)
             return node_fig, river_fig, race_fig, generate_bar_chart(top_n_bar)
 
 

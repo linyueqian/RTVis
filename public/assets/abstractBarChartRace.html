@@ -9,7 +9,7 @@
   <section class="section">
     <div class="container">
           <div class="text-right mb-4">
-            <button type="button" v-on:click="loadExample('abstract')" class="btn btn-outline-primary" data-toggle="button" aria-pressed="false" autocomplete="off">Load Data</button>
+            <!-- <button type="button" v-on:click="loadExample('abstract')" class="btn btn-outline-primary" data-toggle="button" aria-pressed="false" autocomplete="off">Load Data</button> -->
             <button type="button" class="btn btn-xs btn-outline-primary" v-on:click="checkForm">Start/Restart</button>
             <button type="button" class="btn btn-xs btn-outline-primary" v-on:click="stopRace">Stop</button>
           </div>
@@ -36,6 +36,14 @@
     var end = '%value2%';  // Replace with the actual placeholder from the Dash code
     var csv_string = '%csv_string%';
     console.log(csv_string);
+
+    // settings for the example data
+    const settings = {
+        "abstract": {
+            "duration": 30,
+            "top_n": parseInt('%top_n_words%'),
+        }
+    }
 
     const app = new Vue({
         el: '#app',
@@ -108,11 +116,20 @@
                 e.preventDefault();
                 window.scrollTo({top: $("#chart-card").offset().top - 10, behavior: 'smooth'});
             }
+        },  
+        created() {
+            // Load the example data on Vue app initialization
+            this.loadExample('abstract');
+            this.checkForm();
+            // pause for 0.1 seconds to let the page load
+            setTimeout(() => {
+                window.scrollTo({top: $("#chart-card").offset().top - 10, behavior: 'smooth'});
+            }, 100);
+            this.stop();
         },
         delimiters: ["((", "))"]
 
     });
-
 
     /*
     reshapes the data from the second accepted csv format to the other :
@@ -130,13 +147,6 @@
         })
     }
 
-    // settings for the example data
-    const settings = {
-        "abstract": {
-            "duration": 30,
-            "top_n": 8,
-        }
-    }
     function createBarChartRace(data, top_n, tickDuration, start, end) {
         var data = data;
     
