@@ -19,16 +19,19 @@ app.layout = html.Div([
         value=5,
         clearable=False,
     ),
-    dcc.Graph(id="bar-chart-x-graph"),
+    dcc.Graph(id="bar-chart"),
     
 ])
 
 
 @app.callback(
-    Output("bar-chart-x-graph", "figure"), 
-    Input("bar-chart-x-dropdown", "value"))
+    Output("bar-chart", "figure"), 
+    Output('bar-chart', 'clickData'),
+    Input("bar-chart-x-dropdown", "value"),
+    Input('bar-chart', 'clickData'),
+    [State('bar-chart', 'figure')])
 
-def update_bar_chart(top_n):
+def update_bar_chart(top_n, click_data, figure):
 
 
     df = pd.read_csv('../demo_dataset.csv')
@@ -39,9 +42,11 @@ def update_bar_chart(top_n):
     df_clean = df[df['Venue'].isin(first_n)].sort_values('Paper Citation Count').reset_index().drop(['index'], axis=1)
     # mask = df["day"] == day
     # df_clean = pd.read_csv('./test.csv')
-    fig = px.bar(df_clean, x="Year", y="Paper Citation Count", 
-                 color="Venue", barmode="group", hover_name = "Title")
-    # height = 10000
+    
+    fig=px.bar(df_clean, x="Year", y="Paper Citation Count", 
+                color="Venue", barmode="group", hover_name = "Title")
+    #fig update layout
+    
     fig.update_layout(
         hoverlabel=dict(
             bgcolor="white",
@@ -54,17 +59,17 @@ def update_bar_chart(top_n):
         ),
         autosize = True
     )
-    return fig
+    if click_data is not None:
+        title = click_data['points'][0]['hovertext']
+        title = title.replace(" ", "%20")
+        webbrowser.open_new_tab("https://scholar.google.com/scholar?q="+title+"&btnG=&hl=en&as_sdt=0%2C5")
+        click_data = None
+        return fig, click_data
+    return fig, click_data
 
-# def bar_click(click_data, figure):
-#     if click_data is not None:
-#         point_inds = click_data['points'][0]['pointIndex']
-#         trace_index = click_data['points'][0]['curveNumber']
-#         url = figure['data'][trace_index]['paper url'][point_inds]
-#         webbrowser.open_new_tab(url)
 
-#     # Return clickData to update the chart's clickData property
-#     return click_data
+
+
 
 if __name__ == "__main__":
     app.run_server(debug=True)

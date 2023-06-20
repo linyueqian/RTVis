@@ -1,9 +1,11 @@
-from dash import Dash, html, dash_table, dcc, callback, Output, Input
+from dash import Dash, html, dash_table, dcc, callback, Output, Input, State
 import plotly.graph_objects as go
 import plotly.express as px
 import networkx as nx
 import pandas as pd
 import dash
+import webbrowser
+
 
 # Read the Excel file into a DataFrame
 df = pd.read_csv('demo_dataset.csv')
@@ -256,11 +258,9 @@ src_doc = generate_race_fig(None, top_n_words=8)
 ##############################################################################################################
 
 
-def generate_bar_chart(top_n):
+def generate_bar_chart(top_n, click_data):
     df = pd.read_csv('demo_dataset.csv')
     df['Year'] = df['Date'].str[0:4].astype('int')
-    # sort based on Venue alphabetically
-    # df = df.sort_values('Venue')
     gb = df.groupby(['Venue', 'Year']).sum(numeric_only=True)
     gb = gb.groupby(level=0).filter(lambda x: len(x) > 2)
     first_n = gb.reset_index().groupby('Venue').sum(numeric_only=True).sort_values(
@@ -274,7 +274,7 @@ def generate_bar_chart(top_n):
         paper_bgcolor='#161617',
         hoverlabel=dict(
             bgcolor="white",
-            font_size=16,
+            font_size=8,
             font_family='"SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif'
         ),
         xaxis=dict(
@@ -298,10 +298,16 @@ def generate_bar_chart(top_n):
             r=5,
             b=0,
         ))
-    return bar_fig
+    if click_data is not None:
+        title = click_data['points'][0]['hovertext']
+        title = title.replace(" ", "%20")
+        webbrowser.open_new_tab("https://scholar.google.com/scholar?q="+title+"&btnG=&hl=en&as_sdt=0%2C5")
+        click_data = None
+        return bar_fig, click_data
+    return bar_fig, click_data
 
 
-bar_fig = generate_bar_chart(5)
+bar_fig, _ = generate_bar_chart(5, click_data=None)
 ##############################################################################################################
 # show the figures using dash
 external_stylesheets = ['assets/css/style.css']
@@ -411,12 +417,16 @@ app.layout = html.Div(
     Output('river_fig', 'figure'),
     Output('race_fig', 'srcDoc'),
     Output("bar_fig", "figure"),
+    Output('bar_fig', 'clickData'),
     Input('river_fig', 'relayoutData'),
     Input("bar-chart-x-dropdown", "value"),
+    Input('bar_fig', 'clickData'),
     Input("node-x-input", "value"),
-    Input("race-x-input", "value")
+    Input("race-x-input", "value"),
+    [State('bar_fig', 'figure')]
     )
-def update_figure(relayoutData, top_n_bar, top_n_node, top_n_words):
+
+def update_figure(relayoutData, top_n_bar, click_data, top_n_node, top_n_words, state=None):
     if relayoutData is None:
         node_fig = generate_node_fig(None, top_n_node)
         return node_fig, river_fig, src_doc, generate_bar_chart(None)
@@ -427,16 +437,19 @@ def update_figure(relayoutData, top_n_bar, top_n_node, top_n_words):
             river_fig.update_layout(xaxis_range=x_range)
             node_fig = generate_node_fig(x_range, top_n_node)
             race_fig = generate_race_fig(x_range, top_n_words)
-            return node_fig, river_fig, race_fig, generate_bar_chart(top_n_bar)
+            bar_fig, click_data = generate_bar_chart(top_n_bar, click_data)
+            return node_fig, river_fig, race_fig, bar_fig, click_data
         elif 'xaxis.autorange' in relayoutData:
             river_fig.update_layout(xaxis_range=None, yaxis_range=None)
             node_fig = generate_node_fig(None, top_n_node)
             race_fig = generate_race_fig(None, top_n_words)
-            return node_fig, river_fig, race_fig, generate_bar_chart(top_n_bar)
+            bar_fig, click_data = generate_bar_chart(top_n_bar, click_data)
+            return node_fig, river_fig, race_fig, bar_fig, click_data
         else:
             node_fig = generate_node_fig(None, top_n_node)
             race_fig = generate_race_fig(None, top_n_words)
-            return node_fig, river_fig, race_fig, generate_bar_chart(top_n_bar)
+            bar_fig, click_data = generate_bar_chart(top_n_bar, click_data)
+            return node_fig, river_fig, race_fig, bar_fig, click_data
 
 
 # Run the Dash application
