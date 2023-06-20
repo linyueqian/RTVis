@@ -86,7 +86,24 @@ h4 input{
     padding: 0;
     line-height: 34px;
 }
+.Select{
+    width: 40px;
+}
+.Select-control .Select-input:focus {
+    background: #000 !important;
+    align-items: center !important;
+}
+.Select-menu-outer{
+    background-color: #000;
+}
+.Select-menu-outer div:hover {
+    background-color: rgba(255, 255, 255, 0.01);
+}
 
+.Select-value-label {
+    /* color: #a5b1cd !important; */
+    align-items: center !important;
+}
 .Select--single>.Select-control .Select-value, .Select-placeholder{
     padding: 0;
     line-height: 34px;
