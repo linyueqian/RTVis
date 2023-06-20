@@ -398,7 +398,7 @@ app.layout = html.Div(
                         html.Iframe(
                             id='race_fig',
                             srcDoc=src_doc,
-                            style={'width': '100%', 'height': '100%', 'border': 'none'}
+                            style={'width': '100%', 'height': '60vh', 'border': 'none'}
                         )
                     ]
                 )]),
