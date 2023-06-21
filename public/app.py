@@ -3,6 +3,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 import networkx as nx
 import pandas as pd
+import numpy as np
 import dash
 import webbrowser
 import dash_bootstrap_components as dbc
@@ -11,12 +12,7 @@ from collections import Counter
 
 
 # prepare the data for bar chart race
-dframe = pd.read_csv('./assets/data/processed_data.csv')
-df3 = pd.read_csv('./assets/data/commonWords.csv')
-d = dict.fromkeys(df3['word'].tolist(), 0)
-df3 = dframe.groupby('Date')
-df3 = df3.apply(lambda x: x.sort_values(['Date'], ascending=[True]))
-df3 = df3.reset_index(drop=True)
+df3 = pd.read_csv('./assets/data/wordCount.csv')
 
 # Read the Excel file into a DataFrame
 df = pd.read_csv('demo_dataset.csv')
@@ -220,7 +216,7 @@ def extract_ymd(time_str):
     return str(time)
 
 
-def generate_race_fig(d, x_range, top_n_words):
+def generate_race_fig(x_range, top_n_words):
     # read string from "/public/assets/data/barChartRace.csv" and keep it as csv format
     if x_range is None:
         value1 = min_date_ymd
@@ -230,33 +226,26 @@ def generate_race_fig(d, x_range, top_n_words):
     
     # read df3 with lines start from value1 to value2
     df_temp = df3[(df3['Date'] >= value1) & (df3['Date'] <= value2)]
+    df_temp = df_temp.reset_index(drop=True)
+    # make count vector, instead of string
+    df_temp['Count'] = df_temp['Count'].str.strip('][').str.split(', ').apply(lambda x: list(map(int, x)))
+    df_temp['Word'] = df_temp['Word'].str.strip("[']").str.split('\', \'')
+
+    # Subtract the first row value from each subsequent row in 'Count'
+    first_row = df_temp['Count'].iloc[0]
+    first_row = [i - 1 for i in first_row]
+    df_temp['Count'] = df_temp['Count'].apply(lambda x: np.subtract(x, first_row))
+
+    # Keep only the top 15 words with the highest counts for each date
+    df_temp['Top15'] = df_temp.apply(lambda row: sorted(zip(row['Word'], row['Count']), key=lambda x: x[1], reverse=True)[:15], axis=1)
+    df_temp = df_temp.explode('Top15').reset_index(drop=True)
+
+    # Separate 'Word' and 'Count' into separate columns
+    df_temp[['Word', 'Count']] = pd.DataFrame(df_temp['Top15'].tolist(), index=df_temp.index)
+    df_temp = df_temp.drop(columns=['Top15'])
     
-    df_temp = df_temp[df_temp['Abstract'].notna()]
-    
-    #connect all abstracts in the same date to one string
-    df4 = df_temp.groupby('Date')['Abstract'].apply(lambda x: "%s" % ' '.join(x))
-    df4 = pd.DataFrame(df4)
-    #reset index
-    df4 = df4.reset_index()
-
-    #new df to create barcharrace
-    df5 = pd.DataFrame(columns=['Date', 'Word', 'Count'])
-
-    #for each abstract, call remove function to remove stopwords and punctuations
-    for index, row in df4.iterrows():
-        #for each word in the abstract, add 1 to the dictionary
-        for word in row['Abstract'].split():
-            #if wor in the dictionary, add 1
-            if word in d:
-                d[word] += 1
-        #sort the dictionary by value
-        d = {k: v for k, v in sorted(d.items(), key=lambda item: item[1], reverse=True)}
-        #get the first 15 words and save to the dataframe use concat
-        for i in range(15):
-            df5 = pd.concat([df5, pd.DataFrame([[row['Date'], list(d.keys())[i], list(d.values())[i]]], columns=['Date', 'Word', 'Count'])])
-
     # convert df5 to csv string
-    csv_string = df5.to_csv(index=False)
+    csv_string = df_temp.to_csv(index=False)
     csv_string = csv_string.replace('\n', '\\n')
     
     with open('assets/abstractBarChartRace.html', 'r') as file:
@@ -267,7 +256,7 @@ def generate_race_fig(d, x_range, top_n_words):
                     .replace('%top_n_words%', str(top_n_words))
     return src_doc
 
-src_doc = generate_race_fig(d, None, top_n_words=8)
+src_doc = generate_race_fig(None, top_n_words=8)
 ##############################################################################################################
 
 
@@ -504,7 +493,7 @@ def update_river_fig(x_range, relayoutData):
     return river_fig
 
 def update_race_fig(x_range, top_n_words):
-    return generate_race_fig(d, x_range, top_n_words)
+    return generate_race_fig(x_range, top_n_words)
 
 def update_bar_chart(top_n_bar, click_data, x_range):
     return generate_bar_chart(top_n_bar, click_data, x_range)

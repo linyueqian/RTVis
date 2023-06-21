@@ -32,3 +32,30 @@ df3 = df3.reset_index(drop=True)
 d = dict.fromkeys(df3['word'].tolist(), 0)
 # save dictionary to csv, without the value
 df3.to_csv('./assets/data/commonWords.csv', index=False, columns=['word'])
+
+
+df3 = dframe.groupby('Date')
+df3 = df3.apply(lambda x: x.sort_values(['Date'], ascending=[True]))
+df3 = df3.reset_index(drop=True)
+
+#connect all abstracts in the same date to one string
+df4 = df3.groupby('Date')['Abstract'].apply(lambda x: "%s" % ' '.join(x))
+df4 = pd.DataFrame(df4)
+#reset index
+df4 = df4.reset_index()
+
+#new df to create barcharrace
+df5 = pd.DataFrame(columns=['Date', 'Word', 'Count'])
+
+
+#for each abstract, call remove function to remove stopwords and punctuations
+for index, row in df4.iterrows():
+    #for each word in the abstract, add 1 to the dictionary
+    for word in row['Abstract'].split():
+        #if wor in the dictionary, add 1
+        if word in d:
+            d[word] += 1
+
+    df5 = pd.concat([df5, pd.DataFrame([[row['Date'], list(d.keys()), list(d.values())]], columns=['Date', 'Word', 'Count'])])
+    
+df5.to_csv('./assets/data/wordCount.csv', index=False)
