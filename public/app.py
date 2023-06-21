@@ -157,17 +157,17 @@ def generate_node_fig(x_range, top_n):
                         G_top[author1][author2]['weight'] += 1
                     else:
                         G_top.add_edge(author1, author2, weight=1)
-    # remove the node if it is a single node in the current graph
     G = G_top.copy()
-    for node in G_top.nodes():
-        if len(list(G_top.neighbors(node))) <= 1:
-            G.remove_node(node)
+    # for node in G_top.nodes():
+    #     if len(list(G_top.neighbors(node))) <= 1:
+    #         G.remove_node(node)
 
     # Generate the layout of the graph
-    pos = nx.kamada_kawai_layout(G, scale=5)
+    pos = nx.kamada_kawai_layout(G, scale=3, weight='weight')
     # pos = nx.force_atlas2_layout(G, iterations=1000)
     # pos = forceatlas2.forceatlas2_networkx_layout(G, pos=None, niter=1000)
-    pos = nx.spring_layout(G, pos=pos)
+    # pos = nx.spring_layout(G, pos=pos)
+    # pos = nx.fruchterman_reingold_layout(G, pos=pos)
     # pos = nx.spring_layout(G_top)
     # pos = nx.fruchterman_reingold_layout(G_top)
     # pos = nx.spectral_layout(G_top)
