@@ -128,7 +128,7 @@ def generate_node_fig(x_range, top_n):
     #         G.remove_node(node)
 
     # Generate the layout of the graph
-    pos = nx.spring_layout(G, scale=1, iterations=500)
+    pos = nx.kamada_kawai_layout(G, scale=3)
     # pos = nx.force_atlas2_layout(G, iterations=1000)
     # pos = forceatlas2.forceatlas2_networkx_layout(G, pos=None, niter=1000)
     # pos = nx.spring_layout(G, pos=pos)
