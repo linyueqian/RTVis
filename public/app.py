@@ -474,7 +474,7 @@ def update_figure(relayoutData, top_n_bar, click_data, top_n_node, top_n_words, 
     if relayoutData is None:
         node_fig = generate_node_fig(None, top_n_node)
         bar_fig, click_data = generate_bar_chart(top_n_bar, click_data, x_range=None)
-        return node_fig, river_fig, src_doc, generate_bar_chart(None)
+        return node_fig, river_fig, src_doc, bar_fig, click_data
     else:
         if 'xaxis.range[0]' in relayoutData:
             x_range = [relayoutData['xaxis.range[0]'],
