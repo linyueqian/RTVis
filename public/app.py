@@ -5,6 +5,8 @@ import networkx as nx
 import pandas as pd
 import dash
 import webbrowser
+import dash_bootstrap_components as dbc
+from collections import Counter
 
 
 
@@ -101,69 +103,41 @@ def extract_authors(entry):
     authors = [author.strip() for author in authors]
     return authors
 
-
+node_df = pd.read_csv('demo_dataset.csv').fillna('')
 def generate_node_fig(x_range, top_n):
-    if x_range is None:
-        df = pd.read_csv('demo_dataset.csv').fillna('')
-    else:
-        df = pd.read_csv('demo_dataset.csv').fillna('')
+    df = node_df.copy()
+    if x_range is not None:
         df = df[(df['Date'] >= x_range[0]) & (df['Date'] <= x_range[1])]
     # Extract the author names from the DataFrame
     author_list = df['Author Name'].tolist()
     # Create an empty graph
     G = nx.Graph()
-
-    # Iterate over each entry in the author_list
+    co_occurrences = Counter()
+    edges = Counter()
     for idx in range(len(author_list)):
         entry = str(author_list[idx])
         authors = extract_authors(entry)
-
-        # Add edges between all pairs of authors in the entry
         for i in range(len(authors)):
             for j in range(i + 1, len(authors)):
                 author1 = authors[i]
                 author2 = authors[j]
-
-                # Increment the weight of the edge if it already exists
-                if G.has_edge(author1, author2):
-                    G[author1][author2]['weight'] += 1
+                if author1 < author2:
+                    edges[(author1, author2)] += 1
                 else:
-                    G.add_edge(author1, author2, weight=1)
-
-    # Calculate the co-occurrence counts for each author
-    co_occurrences = {author: sum(
-        weight['weight'] for weight in G[author].values()) for author in G.nodes()}
-
+                    edges[(author2, author1)] += 1
+                co_occurrences[author1] += 1
+                co_occurrences[author2] += 1
+    G.add_edges_from((a, b, {"weight": w}) for (a, b), w in edges.items())
     # find the authors with the top 100 highest co-occurrence count
-    least_co_occurrences = sorted(
-        co_occurrences.items(), key=lambda x: x[1], reverse=True)[top_n][1]
-    top_authors_nodes = []
-    for node in G.nodes():
-        if co_occurrences[node] > least_co_occurrences:
-            top_authors_nodes.append(node)
+    least_co_occurrences = sorted(co_occurrences.values(), reverse=True)[top_n]
+    G = nx.Graph((a, b, {"weight": w}) for (a, b), w in edges.items() if co_occurrences[a] > least_co_occurrences and co_occurrences[b] > least_co_occurrences)
 
-    # turn the top_authors into a new graph
-    G_top = nx.Graph()
-    for entry in author_list:
-        authors = extract_authors(entry)
-        # Add edges between all pairs of authors in the entry
-        for i in range(len(authors)):
-            for j in range(i + 1, len(authors)):
-                author1 = authors[i]
-                author2 = authors[j]
-                if author1 in top_authors_nodes and author2 in top_authors_nodes:
-                    # Increment the weight of the edge if it already exists
-                    if G_top.has_edge(author1, author2):
-                        G_top[author1][author2]['weight'] += 1
-                    else:
-                        G_top.add_edge(author1, author2, weight=1)
-    G = G_top.copy()
     # for node in G_top.nodes():
     #     if len(list(G_top.neighbors(node))) <= 1:
     #         G.remove_node(node)
 
     # Generate the layout of the graph
-    pos = nx.kamada_kawai_layout(G, scale=3, weight='weight')
+    pos = nx.spring_layout(G, scale=1, iterations=500)
     # pos = nx.force_atlas2_layout(G, iterations=1000)
     # pos = forceatlas2.forceatlas2_networkx_layout(G, pos=None, niter=1000)
     # pos = nx.spring_layout(G, pos=pos)
@@ -349,9 +323,26 @@ def generate_bar_chart(top_n, click_data, x_range):
         click_data = None
         return bar_fig, click_data
     return bar_fig, click_data
-
-
 bar_fig, _ = generate_bar_chart(5, click_data=None, x_range=None)
+
+# loading_modal = dbc.Modal(
+#     [
+#         dbc.ModalBody("Loading..."),
+#     ],
+#     id="loading-modal",
+#     centered=True,
+#     is_open=False,
+# )
+
+# def update_load_modal(load_trigger):
+#     if load_trigger.get('children') == 1:
+#         load_trigger['children'] = 0
+#     else:
+#         load_trigger['children'] = 1
+#     return load_trigger
+
+
+
 ##############################################################################################################
 # show the figures using dash
 external_stylesheets = ['assets/css/style.css']
@@ -360,6 +351,8 @@ app.title = 'Research Trend Visualization'
 app.favicon = 'assets/favicon.ico'
 app.layout = html.Div(
     children=[
+        # loading_modal,
+        # html.Div(id="load-trigger-1", children=1, style={"display": "none"}),
         html.Div(
             className='title',
             children=[
@@ -455,7 +448,21 @@ app.layout = html.Div(
     ]
 )
 
-
+# @app.callback(
+#     Output("loading-modal", "is_open"),
+#     Input('river_fig', 'relayoutData'),
+#     Input("bar-chart-x-dropdown", "value"),
+#     Input('bar_fig', 'clickData'),
+#     Input("node-x-input", "value"),
+#     Input("race-x-input", "value"),
+#     State('load-trigger-1', 'children'),
+# )
+# def toggle_loading_modal(relayoutData, top_n_bar, click_data, top_n_node, top_n_words, load_trigger):
+#     if relayoutData is not None:
+#         print("relayoutData is not None")
+#         if load_trigger == 1:
+#             return False
+#         else: return True
 @app.callback(
     Output('node_fig', 'figure'),
     Output('river_fig', 'figure'),
@@ -467,34 +474,40 @@ app.layout = html.Div(
     Input('bar_fig', 'clickData'),
     Input("node-x-input", "value"),
     Input("race-x-input", "value"),
-    [State('bar_fig', 'figure')]
-    )
+    [State('bar_fig', 'figure')],
+    prevent_initial_call=True
+)
+def update_figure(relayoutData, top_n_bar, click_data, top_n_node, top_n_words, bar_fig):
 
-def update_figure(relayoutData, top_n_bar, click_data, top_n_node, top_n_words, state=None):
-    if relayoutData is None:
-        node_fig = generate_node_fig(None, top_n_node)
-        bar_fig, click_data = generate_bar_chart(top_n_bar, click_data, x_range=None)
-        return node_fig, river_fig, src_doc, bar_fig, click_data
-    else:
+    x_range = None
+    if relayoutData is not None:
         if 'xaxis.range[0]' in relayoutData:
-            x_range = [relayoutData['xaxis.range[0]'],
-                       relayoutData['xaxis.range[1]']]
-            river_fig.update_layout(xaxis_range=x_range)
-            node_fig = generate_node_fig(x_range, top_n_node)
-            race_fig = generate_race_fig(d,x_range, top_n_words)
-            bar_fig, click_data = generate_bar_chart(top_n_bar, click_data, x_range)
-            return node_fig, river_fig, race_fig, bar_fig, click_data
+            x_range = [relayoutData['xaxis.range[0]'], relayoutData['xaxis.range[1]']]
         elif 'xaxis.autorange' in relayoutData:
-            river_fig.update_layout(xaxis_range=None, yaxis_range=None)
-            node_fig = generate_node_fig(None, top_n_node)
-            race_fig = generate_race_fig(d, None, top_n_words)
-            bar_fig, click_data = generate_bar_chart(top_n_bar, click_data, x_range=None)
-            return node_fig, river_fig, race_fig, bar_fig, click_data
-        else:
-            node_fig = generate_node_fig(None, top_n_node)
-            race_fig = generate_race_fig(d,None, top_n_words)
-            bar_fig, click_data = generate_bar_chart(top_n_bar, click_data, x_range=None)
-            return node_fig, river_fig, race_fig, bar_fig, click_data
+            x_range = None
+
+    node_fig = update_node_fig(x_range, top_n_node)
+    river_fig = update_river_fig(x_range, relayoutData)
+    race_fig = update_race_fig(x_range, top_n_words)
+    bar_fig, click_data = update_bar_chart(top_n_bar, click_data, x_range)
+
+    return node_fig, river_fig, race_fig, bar_fig, click_data
+
+def update_node_fig(x_range, top_n_node):
+    return generate_node_fig(x_range, top_n_node)
+
+def update_river_fig(x_range, relayoutData):
+    if x_range is not None:
+        river_fig.update_layout(xaxis_range=x_range)
+    elif 'xaxis.autorange' in relayoutData:
+        river_fig.update_layout(xaxis_range=None, yaxis_range=None)
+    return river_fig
+
+def update_race_fig(x_range, top_n_words):
+    return generate_race_fig(d, x_range, top_n_words)
+
+def update_bar_chart(top_n_bar, click_data, x_range):
+    return generate_bar_chart(top_n_bar, click_data, x_range)
 
 
 # Run the Dash application
