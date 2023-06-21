@@ -7,6 +7,15 @@ import dash
 import webbrowser
 
 
+
+# prepare the data for bar chart race
+dframe = pd.read_csv('./assets/data/processed_data.csv')
+df3 = pd.read_csv('./assets/data/commonWords.csv')
+d = dict.fromkeys(df3['word'].tolist(), 0)
+df3 = dframe.groupby('Date')
+df3 = df3.apply(lambda x: x.sort_values(['Date'], ascending=[True]))
+df3 = df3.reset_index(drop=True)
+
 # Read the Excel file into a DataFrame
 df = pd.read_csv('demo_dataset.csv')
 df['Date'] = pd.to_datetime(df['Date'])
@@ -237,15 +246,45 @@ def extract_ymd(time_str):
     return str(time)
 
 
-def generate_race_fig(x_range, top_n_words):
+def generate_race_fig(d, x_range, top_n_words):
     # read string from "/public/assets/data/barChartRace.csv" and keep it as csv format
-    csv_string = open('assets/data/barChartRace.csv', 'r').read()
-    csv_string = csv_string.replace('\n', '\\n')
     if x_range is None:
         value1 = min_date_ymd
         value2 = max_date_ymd
     else:
         value1, value2 = [extract_ymd(x) for x in x_range]
+    
+    # read df3 with lines start from value1 to value2
+    df_temp = df3[(df3['Date'] >= value1) & (df3['Date'] <= value2)]
+    
+    df_temp = df_temp[df_temp['Abstract'].notna()]
+    
+    #connect all abstracts in the same date to one string
+    df4 = df_temp.groupby('Date')['Abstract'].apply(lambda x: "%s" % ' '.join(x))
+    df4 = pd.DataFrame(df4)
+    #reset index
+    df4 = df4.reset_index()
+
+    #new df to create barcharrace
+    df5 = pd.DataFrame(columns=['Date', 'Word', 'Count'])
+
+    #for each abstract, call remove function to remove stopwords and punctuations
+    for index, row in df4.iterrows():
+        #for each word in the abstract, add 1 to the dictionary
+        for word in row['Abstract'].split():
+            #if wor in the dictionary, add 1
+            if word in d:
+                d[word] += 1
+        #sort the dictionary by value
+        d = {k: v for k, v in sorted(d.items(), key=lambda item: item[1], reverse=True)}
+        #get the first 15 words and save to the dataframe use concat
+        for i in range(15):
+            df5 = pd.concat([df5, pd.DataFrame([[row['Date'], list(d.keys())[i], list(d.values())[i]]], columns=['Date', 'Word', 'Count'])])
+
+    # convert df5 to csv string
+    csv_string = df5.to_csv(index=False)
+    csv_string = csv_string.replace('\n', '\\n')
+    
     with open('assets/abstractBarChartRace.html', 'r') as file:
         src_doc = file.read()\
                     .replace('%value1%', value1)\
@@ -254,7 +293,7 @@ def generate_race_fig(x_range, top_n_words):
                     .replace('%top_n_words%', str(top_n_words))
     return src_doc
 
-src_doc = generate_race_fig(None, top_n_words=8)
+src_doc = generate_race_fig(d, None, top_n_words=8)
 ##############################################################################################################
 
 
@@ -436,18 +475,18 @@ def update_figure(relayoutData, top_n_bar, click_data, top_n_node, top_n_words, 
                        relayoutData['xaxis.range[1]']]
             river_fig.update_layout(xaxis_range=x_range)
             node_fig = generate_node_fig(x_range, top_n_node)
-            race_fig = generate_race_fig(x_range, top_n_words)
+            race_fig = generate_race_fig(d,x_range, top_n_words)
             bar_fig, click_data = generate_bar_chart(top_n_bar, click_data)
             return node_fig, river_fig, race_fig, bar_fig, click_data
         elif 'xaxis.autorange' in relayoutData:
             river_fig.update_layout(xaxis_range=None, yaxis_range=None)
             node_fig = generate_node_fig(None, top_n_node)
-            race_fig = generate_race_fig(None, top_n_words)
+            race_fig = generate_race_fig(d, None, top_n_words)
             bar_fig, click_data = generate_bar_chart(top_n_bar, click_data)
             return node_fig, river_fig, race_fig, bar_fig, click_data
         else:
             node_fig = generate_node_fig(None, top_n_node)
-            race_fig = generate_race_fig(None, top_n_words)
+            race_fig = generate_race_fig(d,None, top_n_words)
             bar_fig, click_data = generate_bar_chart(top_n_bar, click_data)
             return node_fig, river_fig, race_fig, bar_fig, click_data
 
