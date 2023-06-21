@@ -297,11 +297,16 @@ src_doc = generate_race_fig(d, None, top_n_words=8)
 ##############################################################################################################
 
 
-def generate_bar_chart(top_n, click_data):
-    df = pd.read_csv('demo_dataset.csv')
+def generate_bar_chart(top_n, click_data, x_range):
+    if x_range is None:
+        df = pd.read_csv('demo_dataset.csv')
+    else:
+        df = pd.read_csv('demo_dataset.csv')
+        df = df[(df['Date'] >= x_range[0]) & (df['Date'] <= x_range[1])]
     df['Year'] = df['Date'].str[0:4].astype('int')
     gb = df.groupby(['Venue', 'Year']).sum(numeric_only=True)
-    gb = gb.groupby(level=0).filter(lambda x: len(x) > 2)
+    least_year = max(df['Year'].max() - df['Year'].min() - 1, 0)
+    gb = gb.groupby(level=0).filter(lambda x: len(x) > least_year)
     first_n = gb.reset_index().groupby('Venue').sum(numeric_only=True).sort_values(
         'Paper Citation Count', ascending=False).reset_index()['Venue'][0:top_n].tolist()
     df_clean = df[df['Venue'].isin(first_n)].sort_values(
@@ -346,7 +351,7 @@ def generate_bar_chart(top_n, click_data):
     return bar_fig, click_data
 
 
-bar_fig, _ = generate_bar_chart(5, click_data=None)
+bar_fig, _ = generate_bar_chart(5, click_data=None, x_range=None)
 ##############################################################################################################
 # show the figures using dash
 external_stylesheets = ['assets/css/style.css']
@@ -468,6 +473,7 @@ app.layout = html.Div(
 def update_figure(relayoutData, top_n_bar, click_data, top_n_node, top_n_words, state=None):
     if relayoutData is None:
         node_fig = generate_node_fig(None, top_n_node)
+        bar_fig, click_data = generate_bar_chart(top_n_bar, click_data, x_range=None)
         return node_fig, river_fig, src_doc, generate_bar_chart(None)
     else:
         if 'xaxis.range[0]' in relayoutData:
@@ -476,18 +482,18 @@ def update_figure(relayoutData, top_n_bar, click_data, top_n_node, top_n_words, 
             river_fig.update_layout(xaxis_range=x_range)
             node_fig = generate_node_fig(x_range, top_n_node)
             race_fig = generate_race_fig(d,x_range, top_n_words)
-            bar_fig, click_data = generate_bar_chart(top_n_bar, click_data)
+            bar_fig, click_data = generate_bar_chart(top_n_bar, click_data, x_range)
             return node_fig, river_fig, race_fig, bar_fig, click_data
         elif 'xaxis.autorange' in relayoutData:
             river_fig.update_layout(xaxis_range=None, yaxis_range=None)
             node_fig = generate_node_fig(None, top_n_node)
             race_fig = generate_race_fig(d, None, top_n_words)
-            bar_fig, click_data = generate_bar_chart(top_n_bar, click_data)
+            bar_fig, click_data = generate_bar_chart(top_n_bar, click_data, x_range=None)
             return node_fig, river_fig, race_fig, bar_fig, click_data
         else:
             node_fig = generate_node_fig(None, top_n_node)
             race_fig = generate_race_fig(d,None, top_n_words)
-            bar_fig, click_data = generate_bar_chart(top_n_bar, click_data)
+            bar_fig, click_data = generate_bar_chart(top_n_bar, click_data, x_range=None)
             return node_fig, river_fig, race_fig, bar_fig, click_data
 
 
