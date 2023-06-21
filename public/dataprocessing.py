@@ -5,7 +5,7 @@ stopwords = pd.read_csv('./assets/data/stop_words.csv')
 sw = stopwords['0'].tolist()
 sw.append('0')
 
-df = pd.read_excel('./demo_dataset.xlsx')
+df = pd.read_csv('./demo_dataset.csv')
 dframe = df[['Date','Abstract']]
 dframe = dframe.dropna()
 dframe['Abstract'] = dframe['Abstract'].apply(lambda x: ''.join([i.lower() for i in x if i.isalpha() or i == " "]) if x != None else x)\

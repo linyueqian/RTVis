@@ -9,11 +9,6 @@ import webbrowser
 import dash_bootstrap_components as dbc
 from collections import Counter
 
-
-
-# prepare the data for bar chart race
-df3 = pd.read_csv('./assets/data/wordCount.csv')
-
 # Read the Excel file into a DataFrame
 df = pd.read_csv('demo_dataset.csv')
 df['Date'] = pd.to_datetime(df['Date'])
@@ -224,6 +219,8 @@ def generate_race_fig(x_range, top_n_words):
     else:
         value1, value2 = [extract_ymd(x) for x in x_range]
     
+    # prepare the data for bar chart race
+    df3 = pd.read_csv('./assets/data/wordCount.csv')
     # read df3 with lines start from value1 to value2
     df_temp = df3[(df3['Date'] >= value1) & (df3['Date'] <= value2)]
     df_temp = df_temp.reset_index(drop=True)
