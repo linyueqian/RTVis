@@ -295,7 +295,7 @@ def generate_bar_chart(top_n, click_data, x_range):
         ),
         legend=dict(
             x=-0.1,
-            y=-1.2
+            y=-1.0
         ),
         margin=dict(
             l=5,
