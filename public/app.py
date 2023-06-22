@@ -344,13 +344,15 @@ app.layout = html.Div(
             children=[
                 html.A(
                     className='button-left',
-                    href='https://github.com/linyueqian/RTVis',
-                    children='Code'
+                    href='https://github.com/RTVis/RTVis',
+                    children='Code',
+                    target="_blank"
                 ),
                 html.A(
                     className='button-right',
                     href='https://docs.rtvis.design',
-                    children='Docs'
+                    children='Docs',
+                    target="_blank"
                 ),
                 html.H1('Research Trend Visualization'),
                 html.P('Visualize research trends in a specific field')
