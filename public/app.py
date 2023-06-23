@@ -74,8 +74,10 @@ for field in field_all_traces:
                                          line_shape='spline')
 
 river_fig = go.Figure()
-river_fig.update_layout(plot_bgcolor='#FBFBFB',
-                        paper_bgcolor='#FBFBFB', margin=dict(l=5, r=5, t=0, b=10))
+river_fig.update_layout(plot_bgcolor='#D3D3D3',
+                        paper_bgcolor='#D3D3D3',
+                        margin=dict(l=5, r=5, t=0, b=10)
+                    )
 # river_fig.update_xaxes(gridcolor='#F86F03')
 river_fig.update_yaxes(gridcolor='#888')
 for field in field_trace_dict.keys():
@@ -159,7 +161,7 @@ def generate_node_fig(x_range, top_n):
     # Create edge trace
     edge_trace = go.Scatter(
         x=edge_x, y=edge_y,
-        line=dict(width=0.3, color='#888'),
+        line=dict(width=0.3, color='#000'),
         hoverinfo='none',
         mode='lines')
 
@@ -174,7 +176,8 @@ def generate_node_fig(x_range, top_n):
             opacity=0.9,
             size=node_size,  # Update the marker size based on co-occurrences
             sizemode='area',
-        ))
+        )
+        )
 
     # Create a list of node labels
     node_labels = list(G.nodes())
@@ -193,8 +196,8 @@ def generate_node_fig(x_range, top_n):
         showlegend=False,
         hovermode='closest',
         margin=dict(b=0, l=0, r=5, t=5),
-        plot_bgcolor='#fbfbfd',
-        paper_bgcolor='#fbfbfd',
+        plot_bgcolor='#D3D3D3',
+        paper_bgcolor='#D3D3D3',
         xaxis=dict(showgrid=False, zeroline=False,
                    showticklabels=False),
         yaxis=dict(showgrid=False, zeroline=False,
@@ -274,25 +277,25 @@ def generate_bar_chart(top_n, click_data, x_range):
     bar_fig = px.bar(df_clean, x="Year", y="Paper Citation Count",
                      color="Venue", barmode="group", hover_name="Title")
     bar_fig.update_layout(
-        plot_bgcolor='#161617',
-        paper_bgcolor='#161617',
+        plot_bgcolor='#D3D3D3',
+        paper_bgcolor='#D3D3D3',
         hoverlabel=dict(
-            bgcolor="white",
+            bgcolor="rgb(245, 245, 247)",
             font_size=8,
             font_family='"SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif'
         ),
-        xaxis=dict(
-            linecolor='rgb(245, 245, 247)',
-            tickfont=dict(color='rgb(245, 245, 247)'),
-        ),
-        yaxis=dict(
-            linecolor='rgb(245, 245, 247)',
-            tickfont=dict(color='rgb(245, 245, 247)'),
-        ),
-        font=dict(
-            color='rgb(245, 245, 247)',
-            family='"SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif'
-        ),
+        # xaxis=dict(
+        #     # linecolor='rgb(245, 245, 247)',
+        #     tickfont=dict(color='rgb(245, 245, 247)'),
+        # ),
+        # yaxis=dict(
+        #     # linecolor='rgb(245, 245, 247)',
+        #     tickfont=dict(color='rgb(245, 245, 247)'),
+        # ),
+        # font=dict(
+        #     # color='rgb(245, 245, 247)',
+        #     family='"SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif'
+        # ),
         legend=dict(
             x=-0.1,
             y=-1.0
@@ -302,6 +305,13 @@ def generate_bar_chart(top_n, click_data, x_range):
             r=5,
             b=0,
         ))
+    bar_fig.update_traces(
+        marker_line_color='rgb(8,48,107)',
+        marker_line_width=0.15)
+    bar_fig.update_xaxes(showgrid=False, gridwidth=1, gridcolor='rgb(8,48,107)')
+    bar_fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='rgb(8,48,107)')
+    bar_fig.update_xaxes(showline=True, linewidth=1, linecolor='rgb(8,48,107)',zeroline=False)
+    bar_fig.update_yaxes(showline=True, linewidth=1, linecolor='rgb(8,48,107)',zeroline=False)
     if click_data is not None:
         title = click_data['points'][0]['hovertext']
         title = title.replace(" ", "%20")
@@ -358,7 +368,7 @@ app.layout = html.Div(
                 html.P('Visualize research trends in a specific field')
             ]),
         html.Div(
-            className='graph-container grey',
+            className='graph-container grey-container',
             # style={'width': '100%', 'height': '100%'},
             children=[
                 html.Div(
@@ -428,9 +438,12 @@ app.layout = html.Div(
                     ]
                 )]),
         html.Div(
-            className='river',
+            className='river-container',
             children=[
-                dcc.Graph(id='river_fig', figure=river_fig)
+                html.Div(
+                    className='river-chart',
+                    children=[dcc.Graph(id='river_fig', figure=river_fig)]
+                )
             ]
         )
     ]
