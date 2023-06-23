@@ -6,7 +6,6 @@ import pandas as pd
 import numpy as np
 import dash
 import webbrowser
-import dash_bootstrap_components as dbc
 from collections import Counter
 
 # Read the Excel file into a DataFrame
