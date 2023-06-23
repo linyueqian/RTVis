@@ -130,14 +130,6 @@ def generate_node_fig(x_range, top_n):
 
     # Generate the layout of the graph
     pos = nx.kamada_kawai_layout(G, scale=3)
-    # pos = nx.force_atlas2_layout(G, iterations=1000)
-    # pos = forceatlas2.forceatlas2_networkx_layout(G, pos=None, niter=1000)
-    # pos = nx.spring_layout(G, pos=pos)
-    # pos = nx.fruchterman_reingold_layout(G, pos=pos)
-    # pos = nx.spring_layout(G_top)
-    # pos = nx.fruchterman_reingold_layout(G_top)
-    # pos = nx.spectral_layout(G_top)
-    # pos = nx.circular_layout(G_top)
 
     # Extract node positions and edge coordinates
     node_x = []
@@ -320,24 +312,6 @@ def generate_bar_chart(top_n, click_data, x_range):
     return bar_fig, click_data
 bar_fig, _ = generate_bar_chart(5, click_data=None, x_range=None)
 
-# loading_modal = dbc.Modal(
-#     [
-#         dbc.ModalBody("Loading..."),
-#     ],
-#     id="loading-modal",
-#     centered=True,
-#     is_open=False,
-# )
-
-# def update_load_modal(load_trigger):
-#     if load_trigger.get('children') == 1:
-#         load_trigger['children'] = 0
-#     else:
-#         load_trigger['children'] = 1
-#     return load_trigger
-
-
-
 ##############################################################################################################
 # show the figures using dash
 external_stylesheets = ['assets/css/style.css']
@@ -346,8 +320,6 @@ app.title = 'Research Trend Visualization'
 app.favicon = 'assets/favicon.ico'
 app.layout = html.Div(
     children=[
-        # loading_modal,
-        # html.Div(id="load-trigger-1", children=1, style={"display": "none"}),
         html.Div(
             className='title',
             children=[
@@ -448,21 +420,6 @@ app.layout = html.Div(
     ]
 )
 
-# @app.callback(
-#     Output("loading-modal", "is_open"),
-#     Input('river_fig', 'relayoutData'),
-#     Input("bar-chart-x-dropdown", "value"),
-#     Input('bar_fig', 'clickData'),
-#     Input("node-x-input", "value"),
-#     Input("race-x-input", "value"),
-#     State('load-trigger-1', 'children'),
-# )
-# def toggle_loading_modal(relayoutData, top_n_bar, click_data, top_n_node, top_n_words, load_trigger):
-#     if relayoutData is not None:
-#         print("relayoutData is not None")
-#         if load_trigger == 1:
-#             return False
-#         else: return True
 @app.callback(
     Output('node_fig', 'figure'),
     Output('river_fig', 'figure'),
