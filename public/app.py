@@ -75,7 +75,8 @@ for field in field_all_traces:
 river_fig = go.Figure()
 river_fig.update_layout(plot_bgcolor='#D3D3D3',
                         paper_bgcolor='#D3D3D3',
-                        margin=dict(l=5, r=5, t=0, b=10)
+                        margin=dict(l=5, r=5, t=0, b=10),
+                        yaxis=dict(title='Paper Counts'),
                     )
 river_fig.update_xaxes(gridcolor='rgba(8,48,107,0.5)', zeroline=False)
 river_fig.update_yaxes(gridcolor='rgb(8,48,107)', zeroline=False)
