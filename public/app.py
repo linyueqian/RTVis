@@ -77,8 +77,8 @@ river_fig.update_layout(plot_bgcolor='#D3D3D3',
                         paper_bgcolor='#D3D3D3',
                         margin=dict(l=5, r=5, t=0, b=10)
                     )
-# river_fig.update_xaxes(gridcolor='#F86F03')
-river_fig.update_yaxes(gridcolor='#888')
+river_fig.update_xaxes(gridcolor='rgba(8,48,107,0.5)', zeroline=False)
+river_fig.update_yaxes(gridcolor='rgb(8,48,107)', zeroline=False)
 for field in field_trace_dict.keys():
     river_fig.add_trace(field_trace_dict[field])
 
