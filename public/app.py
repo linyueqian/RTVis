@@ -319,7 +319,7 @@ bar_fig, _, url = generate_bar_chart(5, click_data=None, x_range=None)
 
 ##############################################################################################################
 # show the figures using dash
-external_stylesheets = ['assets/css/style.css']
+external_stylesheets = ['assets/css/style.css', "https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css"]
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 app.title = 'Research Trend Visualization'
 app.favicon = 'assets/favicon.ico'
@@ -388,11 +388,14 @@ app.layout = html.Div(
                         ]),
                         dcc.Graph(id="bar_fig", figure=bar_fig),
                         html.A(
-                            className='button-right',
+                            className='button-right scholar',
                             id="google_scholar",
                             href=url,
-                            children='Google Scholar',
-                            target="_blank"
+                            children=[
+                                html.I(className="ai ai-google-scholar ai-2x", style={'align': 'center', 'padding': '0'}),
+                            ],
+                            target="_blank",
+                            
                         ),
                         # html.Div(
                         #     [
@@ -465,7 +468,7 @@ app.layout = html.Div(
     Input("race-x-input", "value"),
     State('bar_fig', 'figure'),
     State("modal", "is_open"),
-    Input("open", "n_clicks"),
+    Input("open", "n_clicks"), 
     Input("close", "n_clicks"),
     prevent_initial_call=True
 )
